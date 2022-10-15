@@ -24,8 +24,10 @@ fruits_selected = st.multiselect("Pick some fruits:", list(fruit_list.index), ['
 fruits_to_show = fruit_list.loc[fruits_selected]
 st.dataframe(fruits_to_show)
 
-
-
+def get_fruityvice_data(fruit_choice):
+    fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + fruit_choice)
+    fruityvice_normalized = pd.json_normalize(fruityvice_response.json())
+    return fruityvice_normalized
 
 st.header("Fruityvice Fruit Advice!")
 try:
@@ -34,20 +36,25 @@ try:
         st.error("Please select a fruit to get information")
     else:
 
-        st.write('The user entered ', fruit_choice)
-        fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + fruit_choice)
-        fruityvice_normalized = pd.json_normalize(fruityvice_response.json())
+        fruityvice_normalized = get_fruityvice_data(fruit_choice)
         st.dataframe(fruityvice_normalized)
 except URLError as e:
     st.error()
 
-my_cnx = snowflake.connector.connect(**st.secrets["snowflake"])
-my_cur = my_cnx.cursor()
+def get_fruit_load_list():
+    with my_cnx.cursor() as my_cur:
+        my_cur.execute('select * from fruit_load_list')
+        return my_cur.fetchall()
+
+
+if st.button('Get Fruit Load List'):
+    my_cnx = snowflake.connector.connect(**st.secrets["snowflake"])
+    my_data_row = get_fruit_load_list()
+    st.text("The fruit load list contains:")
+    st.dataframe(my_data_row)
+
 #my_cur.execute("SELECT CURRENT_USER(), CURRENT_ACCOUNT(), CURRENT_REGION()")
-my_cur.execute('select * from fruit_load_list')
-my_data_row = my_cur.fetchall()
-st.text("The fruit load list contains:")
-st.dataframe(my_data_row)
+
 
 
 fruit_to_add= st.text_input('What fruit would you like to add')
