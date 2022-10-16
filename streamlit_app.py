@@ -56,6 +56,13 @@ if st.button('Get Fruit Load List'):
 #my_cur.execute("SELECT CURRENT_USER(), CURRENT_ACCOUNT(), CURRENT_REGION()")
 
 
+def insert_row_snowflake(new_fruit):
+    with my_cnx.cursor() as my_cur:
+        my_cur.execute("insert into fruit_load_list values ('"+ new_fruit +" ')")
+        return 'Thanks for adding ' + new_fruit
 
 fruit_to_add= st.text_input('What fruit would you like to add')
-st.write('Thanks for adding ', fruit_to_add)
+if st.button('Add Fruit to the List'):
+    my_cnx = snowflake.connector.connect(**st.secrets["snowflake"])
+    text_from_insert_row_snfl = insert_row_snowflake(fruit_to_add)
+    st.write(text_from_insert_row_snfl)
