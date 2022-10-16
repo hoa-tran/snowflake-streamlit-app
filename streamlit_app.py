@@ -29,7 +29,7 @@ def get_fruityvice_data(fruit_choice):
     fruityvice_normalized = pd.json_normalize(fruityvice_response.json())
     return fruityvice_normalized
 
-st.header("Fruityvice Fruit Advice!")
+st.header("View Our Fruit List - Add Your Favorites!")
 try:
     fruit_choice = st.text_input('What fruit would you like information about?','Kiwi')
     if not fruit_choice:
@@ -50,6 +50,7 @@ def get_fruit_load_list():
 if st.button('Get Fruit Load List'):
     my_cnx = snowflake.connector.connect(**st.secrets["snowflake"])
     my_data_row = get_fruit_load_list()
+    my_cnx.close()
     st.text("The fruit load list contains:")
     st.dataframe(my_data_row)
 
